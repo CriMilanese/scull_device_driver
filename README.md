@@ -9,5 +9,7 @@ contains the c implementation of a custom null device driver
 the rust counterpart
 
 ### requires
-make sure to install the kernel development library related to the kernel version we want to build this module against
-use "install.sh" to install for debian based distro
+make sure to install the kernel development library related to the kernel version we want to build this module against.
+
+rhel `dnf install kernel-devel-$(uname -r)` \
+debian `apt install linux-headers-$(uname -r)`
