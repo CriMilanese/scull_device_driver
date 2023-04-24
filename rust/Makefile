@@ -1,12 +1,12 @@
 TARGET_MODULE:=rust-driver-module
-# If we running by kernel building system
+# to build with kernel building system
 ifneq ($(KERNELRELEASE),)
 	$(TARGET_MODULE)-objs := my_null.o
 	obj-m := $(TARGET_MODULE).o
 
-# If we are running without kernel build system
+# to build against host kernel build system
 else
-	BUILDSYSTEM_DIR:=/lib/modules/$(shell uname -r)/build
+	BUILDSYSTEM_DIR:=../../rust-enabled-linux-kernel-tree
 	PWD:=$(shell pwd)
 
 all:
