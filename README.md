@@ -20,10 +20,10 @@ at the time of writing no distribution delivers rust support, hence a custom ker
 built from scratch.
 
 #### gather the tools
-In order to do that, start by cloning the [Rust-for-Linux]{https://github.com/Rust-for-Linux/linux}
-project, then gather the Rust compiler and its dependencies, it is easier to use the [rustup]{https://www.rust-lang.org/tools/install} tool.
+In order to do that, start by cloning the [Rust-for-Linux](https://github.com/Rust-for-Linux/linux)
+project, then gather the Rust compiler and its dependencies, it is easier to use the [rustup](https://www.rust-lang.org/tools/install) tool.
 Rust needs clang to correctly create the bindings with the legacy C types.
-You will therefore need to install the [llvm]{https://llvm.org/docs/GettingStarted.html} toolchain as well.
+You will therefore need to install the [llvm](https://llvm.org/docs/GettingStarted.html) toolchain as well.
 To make sure that the rust compiler version is matching the one required by the linux kernel version you checked out, move to the repository root folder and run:
 `rustup override set $(scripts/min-version-tools.sh rustc)`
 Finally, a makefile target is there to help make sure your kernel is building with Rust support
@@ -81,7 +81,7 @@ This project was originally intended to be a block device driver written in Rust
 the language safety guarantees to write kernel code. The lack of C bindings to the original 
 kernel block layer and its structures moved the objective towards a mock-up, namely a character
 device driver that uses a bi-dimensional array to simulate reading and writing to non-contiguous
-areas of memory. Furthermore, to test its performance using [FIO]{https://fio.readthedocs.io/en/latest/} (a standard testing tool
+areas of memory. Furthermore, to test its performance using [FIO](https://fio.readthedocs.io/en/latest/) (a standard testing tool
 for IO operations), our device driver *never returns zero* on read or write, because if our
 file was actually mapped to physical memory, that memory would have been always readable or
 writable, at least partially.
