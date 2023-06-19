@@ -8,6 +8,9 @@ contains the c implementation of a custom scull device driver
 `./rust`
 the rust counterpart
 
+`**/jf.fio`
+the FIO job file associated with the performance tests we ran on the related device file
+
 ### requires
 It is highly recommended to use a Virtual Machine with a hypervisor of your choice, the following
 operations are often irreversible and an unsound configuration will corrupt data in the best scenarios.
@@ -78,7 +81,7 @@ This project was originally intended to be a block device driver written in Rust
 the language safety guarantees to write kernel code. The lack of C bindings to the original 
 kernel block layer and its structures moved the objective towards a mock-up, namely a character
 device driver that uses a bi-dimensional array to simulate reading and writing to non-contiguous
-areas of memory. Furthermore, to test its performance using `fio` (a standard testing tool
+areas of memory. Furthermore, to test its performance using [FIO]{https://fio.readthedocs.io/en/latest/} (a standard testing tool
 for IO operations), our device driver *never returns zero* on read or write, because if our
 file was actually mapped to physical memory, that memory would have been always readable or
 writable, at least partially.
