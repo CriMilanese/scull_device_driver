@@ -35,9 +35,9 @@ The Linux kernel docs reports a [quick start](https://docs.kernel.org/rust/quick
 Next, we need to configure the kernel configuration to enable Rust before compiling:
 `make LLVM=1 defconfig rust.config`
 This combination of configuration files have been tested on Fedora 37 host OS only, so far.
-If the kernel configuration requires manual intervention, the *menuconfig* target will display
+If the kernel configuration requires manual intervention, the **menuconfig** target will display
 the current configuration, allowing you to make changes where needed, including enabling modules
-to be loaded at runtime and some rust *samples*.
+to be loaded at runtime and some rust **samples**.
 `make menuconfig`
 You can finally build the kernel with `make LLVM=1 -j$(nproc)` where nproc is the number of processor available, so to shorten build time.
 
@@ -67,7 +67,7 @@ make sure the homonymous attribute is configured in your system, to an adequate 
 You booted into a linux kernel that has Rust support, now we can use the modules in this repository
 to create the scull device driver, navigate to the rust subfolder and run `make`.
 The kernel object file (.ko) will show up in this folder and you can load it in your 
-system with `make load`, or similarly *unload* it.
+system with `make load`, or similarly **unload** it.
 
 The device driver is registered as a miscellaneous device, which means it will automatically
 be assigned a major number of 10 and the first minor number available. Once you load the
@@ -85,6 +85,7 @@ areas of memory. Furthermore, to test its performance using [FIO](https://fio.re
 for IO operations), our device driver *never returns zero* on read or write, because if our
 file was actually mapped to physical memory, that memory would have been always readable or
 writable, at least partially.
+
 Considering the above, some user-space programs will expect a return value of zero, for example
 the `cat` utility, which concats files and prints them to _stdout_ until it receives a 0 in
 return for its read requests. Asynchronous read/write calls will also accept such a value,
