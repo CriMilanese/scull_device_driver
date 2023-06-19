@@ -1,0 +1,12 @@
+[global]
+name=c-scull-test
+description="synchronous randrw test on c scull device driver"
+ioengine=sync
+rw=randrw
+bs=4K
+size=16M
+numjobs=8
+group_reporting
+
+[c_scull]
+filename=/dev/scull

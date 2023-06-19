@@ -1,0 +1,12 @@
+[global]
+name=rust-scull-test
+description="synchronous randrw test on rust device driver"
+ioengine=sync
+rw=randrw
+bs=4K
+size=16M
+numjobs=16
+group_reporting
+
+[rust_scull]
+filename=/dev/rust_scull
