@@ -1,7 +1,7 @@
 # rust scull device driver
-a simple rust implementation of the scull device found on "Linux Device Drivers" [book]{https://lwn.net/Kernel/LDD3} chapter 3.
+a simple rust implementation of the scull device found on "Linux Device Drivers" [book](https://lwn.net/Kernel/LDD3) chapter 3.
 
-### tree
+### Tree
 `./c`
 contains the c implementation of a custom scull device driver
 
@@ -11,7 +11,7 @@ the rust counterpart
 `**/jf.fio`
 the FIO job file associated with the performance tests we ran on the related device file
 
-### requires
+### Requires
 It is highly recommended to use a Virtual Machine with a hypervisor of your choice, the following
 operations are often irreversible and an unsound configuration will corrupt data in the best scenarios.
 
@@ -31,7 +31,7 @@ available, as Rust needs clang to compile, the same requirement applies to the k
 `make LLVM=1 rustavailable`
 
 #### configure the kernel
-The Linux kernel docs reports a [quick start]{https://docs.kernel.org/rust/quick-start.html} guide to help you get to this point.
+The Linux kernel docs reports a [quick start](https://docs.kernel.org/rust/quick-start.html) guide to help you get to this point.
 Next, we need to configure the kernel configuration to enable Rust before compiling:
 `make LLVM=1 defconfig rust.config`
 This combination of configuration files have been tested on Fedora 37 host OS only, so far.
@@ -62,7 +62,7 @@ update grub to list the new kernel when booting:
 NB: if grub wait timeout is 0, you will not have the time to select the kernel to boot from.
 make sure the homonymous attribute is configured in your system, to an adequate value.
 
-### usage
+### Usage
 
 You booted into a linux kernel that has Rust support, now we can use the modules in this repository
 to create the scull device driver, navigate to the rust subfolder and run `make`.
@@ -96,4 +96,4 @@ limitations.
 Any read/write operation will request memory from RAM, in fact requesting pages from 
 the virtual address space, risking that they might be swapped out, in case the OS sees 
 the necessity. Rust memory safety guarantuees that in the event of a kernel panic
-due to inexistent pages, all memory allocated is dropped, as their owners go out of scope.
+due to inexistent pages, all memory allocated is dropped, as their "owners" go out of scope.
