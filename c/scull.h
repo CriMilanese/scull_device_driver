@@ -30,7 +30,7 @@ DEFINE_MUTEX(cursor_lock);
 
 // square matrix holding the data in main memory
 static char **matrix = NULL;
-// the number of rows in the matrix, initially a square one
+// the number of allocated rows in the matrix, initially a square one
 static size_t size = 0;
 
 // makes sure the block exists and fills it with data if it did not
@@ -65,6 +65,7 @@ static struct miscdevice scull_dev = {
     .fops = &scull_fops
 };
 
+// entry and exit point for kernel object
 static int __init scull_init(void);
 static void __exit scull_exit(void);
 
