@@ -28,11 +28,21 @@ struct ScullDevice {
 
 impl ScullDevice {
     fn try_new() -> Result<Self> {
-      let set = Vec::<Vec<u8>>::try_with_capacity(8)?;
+      let set = Vec::<Vec<u8>>::try_with_capacity(BLOCK_SIZE)?;
       Ok(Self {
       	data: Mutex::new(set),
       	cursor: Mutex::new(0)
       })
+    }
+
+    fn size(&self) -> usize {
+				let mut vec = self.data.lock();
+				let mut counter = 0;
+				for i in &mut vec[..] {
+     				pr_info!("content for index 0 is : {:?}", i);
+						counter += i.len();
+				}
+				counter
     }
 
     fn find_block(
@@ -139,26 +149,25 @@ impl Operations for ScullDevice {
     		_fd: &File,
     		_offset: SeekFrom
     ) -> Result<u64> {
-       match _offset {
-		     SeekFrom::Start(of) => {
-            let mut guard = this.cursor.lock();
-            *guard = of.try_into()?;
-            return Ok(of);
-		     }  
-		     SeekFrom::End(of) => {
-		     		let from_begin : usize = BLOCK_SIZE * BLOCK_SIZE;
-		     		let mut guard = this.cursor.lock();
-		     		let ret : usize = from_begin.saturating_add_signed(of.try_into()?);	
-     				*guard = ret;
-     				return Ok(ret.try_into()?);
-		     }
-		     SeekFrom::Current(of) =>  {
-    				let mut guard = this.cursor.lock();
-    				let ret = (*guard).saturating_add_signed(of.try_into()?);
-    				*guard = ret;
-    				return Ok(ret.try_into()?);
-		     }
-       }
+				let mut guard = this.cursor.lock();
+				match _offset {
+						SeekFrom::Start(of) => {
+							  let mut guard = this.cursor.lock();
+							  *guard = of.try_into()?;
+							  return Ok(of);
+						}  
+						SeekFrom::End(of) => {
+								let from_begin : usize = this.size();
+								let ret : usize = from_begin.saturating_add_signed(of.try_into()?);	
+								*guard = ret;
+								return Ok(ret.try_into()?);
+						}
+						SeekFrom::Current(of) =>  {
+								let ret = (*guard).saturating_add_signed(of.try_into()?);
+								*guard = ret;
+								return Ok(ret.try_into()?);
+						}
+				}
     }
     
     fn release(_this: Arc<ScullDevice>, _: &File) {}
