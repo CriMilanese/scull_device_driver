@@ -1,4 +1,4 @@
-TARGET_MODULE:=rust-driver-module
+TARGET_MODULE:=rust_scull
 # to build with kernel building system
 ifneq ($(KERNELRELEASE),)
 	$(TARGET_MODULE)-objs := rust_scull.o
