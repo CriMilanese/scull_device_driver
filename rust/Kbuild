@@ -1,0 +1,1 @@
+obj-m := rust_scull.o
