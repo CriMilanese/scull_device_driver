@@ -52,7 +52,7 @@ static ssize_t scull_read(struct file *fp, char __user *buf, size_t count, loff_
     if(count < bytes) bytes = count;
 
     mutex_lock(&data_lock);
-    printk(KERN_INFO "block size is %ld\n", _BLOCK_SIZE);
+    //printk(KERN_INFO "block size is %ld\n", _BLOCK_SIZE);
     could_not_be_read = copy_to_user(buf, &matrix[row][offset], bytes);
     *f_pos += bytes - could_not_be_read;
     mutex_unlock(&data_lock);
