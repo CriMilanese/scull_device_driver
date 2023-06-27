@@ -36,10 +36,9 @@ impl ScullDevice {
     }
 
     fn size(&self) -> usize {
-				let mut vec = self.data.lock();
+				let vec = self.data.lock();
 				let mut counter = 0;
-				for i in &mut vec[..] {
-     				pr_info!("content for index 0 is : {:?}", i);
+				for i in vec[..].iter() {
 						counter += i.len();
 				}
 				counter
@@ -102,10 +101,10 @@ impl Operations for ScullDevice {
         let block_offset : usize = _rest.try_into()?;
         match this.find_block(row) {
         		Ok(bytes) => {
-	        	  	let vec = this.data.lock();
 	        	  	let tot = user_buff.len().checked_add(block_offset).unwrap();
 	        	  	let mut end = bytes;
 	        	  	if tot < bytes { end = tot; }
+	        	  	let vec = this.data.lock();
 	              user_buff.write_slice(& vec[row][block_offset..end])?;
 	              return Ok(end.saturating_sub(block_offset));
 	          },
@@ -133,10 +132,10 @@ impl Operations for ScullDevice {
         let offset : usize = _rest.try_into()?;
         match this.find_block(row) {
 						Ok(bytes) => {
+		            let mut vec = this.data.lock();
 	        	  	let tot = user_buff.len().checked_add(offset).unwrap();
 	        	  	let mut end = bytes;
 	        	  	if tot < bytes { end = tot }
-		            let mut vec = this.data.lock();
 		           	user_buff.read_slice(&mut vec[row][offset..end])?;
 		           	return Ok(end.saturating_sub(offset))
 		        },
@@ -152,7 +151,6 @@ impl Operations for ScullDevice {
 				let mut guard = this.cursor.lock();
 				match _offset {
 						SeekFrom::Start(of) => {
-							  let mut guard = this.cursor.lock();
 							  *guard = of.try_into()?;
 							  return Ok(of);
 						}  
@@ -179,17 +177,10 @@ struct ScullDeviceModule {
 
 impl kernel::Module for ScullDeviceModule {
     fn init(name: &'static CStr, _module: &'static ThisModule) -> Result<Self> {
-        pr_info!("loading scull device driver\n");
         let dev = Arc::try_new(ScullDevice::try_new()?)?;					
         let reg = miscdev::Registration::<ScullDevice>::new_pinned(fmt!("{name}"), dev)?;
         Ok(ScullDeviceModule {
             _dev: reg,
         })
-    }
-}
-
-impl Drop for ScullDeviceModule {
-    fn drop(&mut self) {
-        pr_info!("Unloading scull device driver\n");
     }
 }
