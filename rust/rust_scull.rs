@@ -3,6 +3,7 @@
 //! Rust scull device sample.
 
 use kernel::{
+    Module,
     miscdev,
     prelude::*,
     file::{File, Operations, SeekFrom},
@@ -51,11 +52,14 @@ impl ScullDevice {
         let mut vec = self.data.lock();
         if row >= vec.len() {
             // add one to compensate for index vs size
-            let fill = row.saturating_sub(vec.len()).checked_add(1).unwrap();
-		        for _ in 0..fill {
+            let fill = row.saturating_sub(vec.len()) + 1;
+		        for i in 0..fill {
 		            match vec.try_push(Vec::<u8>::new()) {
 		            		Ok(_) => continue,
-		            		Err(_) => return Err(ENOMEM)
+		            		Err(_) => {
+		            		  pr_err!("max limit reached at {}", i);
+		            		  return Err(ENOMEM)
+		            		}
 		            }
 		        }
         }
@@ -148,19 +152,21 @@ impl Operations for ScullDevice {
     		_fd: &File,
     		_offset: SeekFrom
     ) -> Result<u64> {
-				let mut guard = this.cursor.lock();
 				match _offset {
 						SeekFrom::Start(of) => {
+        				let mut guard = this.cursor.lock();
 							  *guard = of.try_into()?;
 							  return Ok(of);
 						}  
 						SeekFrom::End(of) => {
 								let from_begin : usize = this.size();
 								let ret : usize = from_begin.saturating_add_signed(of.try_into()?);	
-								*guard = ret;
+								let mut guard = this.cursor.lock();
+         				*guard = ret;
 								return Ok(ret.try_into()?);
 						}
 						SeekFrom::Current(of) =>  {
+        				let mut guard = this.cursor.lock();
 								let ret = (*guard).saturating_add_signed(of.try_into()?);
 								*guard = ret;
 								return Ok(ret.try_into()?);
@@ -175,7 +181,7 @@ struct ScullDeviceModule {
     _dev: Pin<Box<miscdev::Registration<ScullDevice>>>,
 }
 
-impl kernel::Module for ScullDeviceModule {
+impl Module for ScullDeviceModule {
     fn init(name: &'static CStr, _module: &'static ThisModule) -> Result<Self> {
         let dev = Arc::try_new(ScullDevice::try_new()?)?;					
         let reg = miscdev::Registration::<ScullDevice>::new_pinned(fmt!("{name}"), dev)?;
