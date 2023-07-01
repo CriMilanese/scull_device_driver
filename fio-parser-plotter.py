@@ -1,6 +1,6 @@
 import sys
 import json
-import os
+import datetime
 import numpy as np
 import subprocess
 import matplotlib.pyplot as plt
@@ -51,7 +51,8 @@ def generate_graphs(scull_latency, rust_latency):
 	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w)
 	ax[0].set_ylim(0, max(rust_latency.reads['means']))
 	ax[1].set_ylim(0, max(rust_latency.reads['means']))
-	plt.savefig("graph_latency.png")
+	stamp = datetime.now().strftime("%Y%m%d-%H%M%S-")
+	plt.savefig(stamp+"graph-latency", format="png")
 
 def main(filepath):
 	ret = 0
