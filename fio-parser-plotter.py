@@ -6,6 +6,8 @@ import subprocess
 import matplotlib.pyplot as plt
 
 SCALE = 0.001
+REL_OUT_FILENAME="plots/boxplot_latency_rust_c"
+FORMAT=".png"
 
 class DataPoints:
 	def __init__(self):
@@ -39,20 +41,28 @@ class DataPoints:
 		self.writes['stddevs'].append(stdev)
 
 # saves a graph from the given values
-def generate_graphs(scull_latency, rust_latency):
+def generate_graphs_from_means(scull_latency, rust_latency):
 	labels=["C", "Rust"]
 	box_w = 0.4
+	c_max_writes = max(scull_latency.writes['means'])
+	c_min_reads = min(scull_latency.reads['means'])
+	rust_max_writes = max(rust_latency.writes['means'])
+	rust_min_reads = min(rust_latency.reads['means'])
+	max_scull = max(c_max_writes, rust_max_writes)
+	min_scull = min(c_min_reads, rust_min_reads)
+
 	fig, ax = plt.subplots(1,2)
-	fig.tight_layout(pad=0.5)
+	fig.tight_layout(pad=0.6)
 	plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 	ax[0].set_title('latency for readings')
 	ax[1].set_title('latency for writings')
 	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w)
 	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w)
-	ax[0].set_ylim(0, 100)
-	ax[1].set_ylim(0, 100)
-	stamp = time.strftime("%Y%m%d-%H%M%S-")
-	plt.savefig(stamp+"graph-latency.png")
+	for plot in ax:
+		plot.set_ylim(0, max_scull + min_scull)
+		plot.set_ylabel("µsec")
+	stamp = time.strftime("_%Y%m%d_%H%M%S")
+	plt.savefig(REL_OUT_FILENAME+stamp+FORMAT)
 
 def main(filepath):
 	ret = 0
@@ -96,7 +106,7 @@ def main(filepath):
 				rlat['stddev'] * SCALE
 			)
 	print(ret)
-	generate_graphs(c_scull, rust_scull)
+	generate_graphs_from_means(c_scull, rust_scull)
 
 if __name__ == "__main__":
 	if(sys.argv[1]):
