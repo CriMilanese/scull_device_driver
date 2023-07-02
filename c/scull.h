@@ -23,15 +23,18 @@
 #define _BLOCK_SIZE 4096
 
 MODULE_AUTHOR("Cristiano Milanese");
+MODULE_DESCRIPTION("Simple Character Utility for Loading Localities");
 MODULE_LICENSE("GPL");
 
 DEFINE_MUTEX(data_lock);
+
+// max allocated row (even if empty)
 DEFINE_MUTEX(cursor_lock);
 
 // square matrix holding the data in main memory
 static char **matrix = NULL;
-// the number of allocated rows in the matrix, initially a square one
-static size_t size = 0;
+// keeping track of where we are in memory for relative indexingas used in llseek
+static size_t cursor = 0;
 
 // makes sure the block exists and fills it with data if it did not
 static int find_block(int index);

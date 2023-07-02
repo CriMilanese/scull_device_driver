@@ -4,7 +4,7 @@ static int find_block(int index){
     int ret = _BLOCK_SIZE;
 
     mutex_lock(&data_lock);
-    if(index >= size) {
+    if(index >= cursor) {
         // try to allocate new size and memcpy the old content
         matrix = krealloc(matrix, (index+1)*sizeof(char*), GFP_KERNEL);
         if(matrix == NULL){
@@ -12,10 +12,10 @@ static int find_block(int index){
 		    		ret = -ENOMEM;
 		    		goto out;
 		    }
-        for(int i = index; i >= size; i--){
+        for(int i = index; i >= cursor; i--){
             matrix[i] = NULL;
         }
-        size = index + 1;
+        cursor = index + 1;
     }
     if(matrix[index] == NULL) {
     	  matrix[index] = krealloc(matrix[index], _BLOCK_SIZE*sizeof(char), GFP_KERNEL);
@@ -52,7 +52,6 @@ static ssize_t scull_read(struct file *fp, char __user *buf, size_t count, loff_
     if(count < bytes) bytes = count;
 
     mutex_lock(&data_lock);
-    //printk(KERN_INFO "block size is %ld\n", _BLOCK_SIZE);
     could_not_be_read = copy_to_user(buf, &matrix[row][offset], bytes);
     *f_pos += bytes - could_not_be_read;
     mutex_unlock(&data_lock);
@@ -96,7 +95,7 @@ static loff_t scull_llseek(struct file *fp, loff_t offset, int whence) {
             fp->f_pos = offset;
             break;
         case SEEK_END:
-            fp->f_pos = (_BLOCK_SIZE * size) - offset;
+            fp->f_pos = (_BLOCK_SIZE * cursor) - offset;
             break;
         case SEEK_CUR:
             fp->f_pos += offset;
@@ -118,7 +117,7 @@ static int __init scull_init(void)
     for(int i=_BLOCK_SIZE; i>=0; i--){
         matrix[i] = NULL;
     }
-    size = _BLOCK_SIZE;
+    cursor = _BLOCK_SIZE;
     mutex_unlock(&data_lock);
     err = misc_register(&scull_dev);
     if(err) pr_err("scull device registration failed\n");
@@ -127,10 +126,12 @@ static int __init scull_init(void)
 
 static void __exit scull_exit(void)
 {
-    for(int i=size-1; i>=0; i--){
+    mutex_lock(&data_lock);
+    for(int i=cursor-1; i>=0; i--){
         if(matrix[i]) kfree(matrix[i]);
     }
     kfree(matrix);
+    mutex_unlock(&data_lock);
     misc_deregister(&scull_dev);
 }
 
