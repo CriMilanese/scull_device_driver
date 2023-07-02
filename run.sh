@@ -1,7 +1,7 @@
 #!/bin/bash
 
 GRAPH_NAME="rw_latency_"
-FIO_OUT_DIR="results/"
+RES_DIR="results/"
 BRANCHES=$(git for-each-ref --format='%(refname:short)' refs/heads/)
 
 GREEN='\033[0;34m'
@@ -16,10 +16,11 @@ fi
 
 for branch in $BRANCHES;
 do
-  if[[$branch == "main "]]; then
-    # skip devel branch
-  	continue;
-  done
+  # skip devel branch
+  if [[ $branch == "main" ]];
+	then
+		continue
+  fi
 
   git checkout $branch
 
@@ -35,9 +36,9 @@ do
 
 	echo -e "${GREEN}c scull module loaded\n${NC}"
 
-	fio jf.fio --output-format=json --output=$FIO_OUT_DIR$GRAPH_NAME$branch --minimal
-	echo -e "${GREEN}tested ${NC}" $GRAPH_NAME$branch
-	python3 fio-parser-plotter.py $GRAPH_NAME$branch
+	fio jf.fio --output-format=json --output=$RES_DIR$GRAPH_NAME$branch --minimal
+	echo -e "${GREEN}tested ${NC}" $RES_DIR$GRAPH_NAME$branch
+	python3 fio-parser-plotter.py $RES_DIR$GRAPH_NAME$branch
  	echo -e "${GREEN}plotted${NC}"
 done
 
