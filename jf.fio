@@ -5,7 +5,6 @@ ioengine=sync
 bs=1K
 iodepth=1
 rw=randrw
-randrepeat=false
 numjobs=4
 size=256MiB
 
