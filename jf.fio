@@ -5,8 +5,8 @@ ioengine=sync
 bs=1K
 iodepth=1
 rw=randrw
-numjobs=1024
-size=1MiB
+numjobs=512
+size=2MiB
 
 [c_scull]
 filename=/dev/scull

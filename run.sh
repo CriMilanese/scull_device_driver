@@ -17,7 +17,11 @@ fi
 for branch in $BRANCHES;
 do
   # skip devel branch
+<<<<<<< Updated upstream
   if [[ $branch -ne "nocursor" ]];
+=======
+  if ! [ $branch == "nocursor" ];
+>>>>>>> Stashed changes
 	then
 	  echo $branch
 		continue
@@ -38,9 +42,15 @@ do
 
 	echo -e "${GREEN}c scull module loaded\n${NC}"
 
+<<<<<<< Updated upstream
 	fio jf.fio --output-format=json --output=$RES_DIR"/"$GRAPH_NAME$branch --minimal
 	echo -e "${GREEN}tested ${NC}" $RES_DIR"/"$GRAPH_NAME$branch
 	python3 fio-parser-plotter.py $GRAPH_NAME$branch $RES_DIR
+=======
+	fio jf.fio --output-format=json --output=$RES_DIR"/"$GRAPH_NAME$branch".json"
+	echo -e "${GREEN}tested ${NC}" $RES_DIR"/"$GRAPH_NAME$branch
+	python3 fio-parser-plotter.py $GRAPH_NAME$branch".json" $RES_DIR
+>>>>>>> Stashed changes
  	echo -e "${GREEN}plotted${NC}"
  	exit
 done

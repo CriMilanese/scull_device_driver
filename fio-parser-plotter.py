@@ -79,7 +79,6 @@ def main(filename, out_dir):
 		rlat = i['read']['lat_ns']
 		ret += 1
 		if i['job options'] and i['job options']['filename'] == "/dev/scull":
-			print("C mean write:    ", wlat['mean'])
 			c_scull.add_write(
 				wlat['min'] * SCALE,
 				wlat['max'] * SCALE,
@@ -93,7 +92,6 @@ def main(filename, out_dir):
 				rlat['stddev'] * SCALE
 			)
 		else:
-			print("Rust mean write: ", wlat['mean'])
 			rust_scull.add_write(
 				wlat['min'] * SCALE,
 				wlat['max'] * SCALE,
