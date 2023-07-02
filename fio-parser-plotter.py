@@ -6,7 +6,7 @@ import subprocess
 import matplotlib.pyplot as plt
 
 SCALE = 0.001
-REL_OUT_FILENAME="plots/boxplot_latency_rust_c"
+REL_OUT_FILENAME="plots/"+str(sys.argv[1])
 FORMAT=".png"
 
 class DataPoints:
