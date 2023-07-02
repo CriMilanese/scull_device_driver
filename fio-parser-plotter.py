@@ -63,7 +63,7 @@ def generate_graphs_from_means(scull_latency, rust_latency):
 	for plot in ax:
 		plot.set_ylim(0, max_scull + min_scull)
 		plot.set_ylabel("µsec")
-	plt.savefig(REL_OUT_FILENAME+FORMAT)
+	plt.savefig(REL_OUT_FILENAME+".png")
 
 def main(filename, out_dir):
 	ret = 0
@@ -71,7 +71,7 @@ def main(filename, out_dir):
 	c_scull = DataPoints()
 	as_dict = {}
 
-	with open("./"+out_dir+"/"+filename) as handle:
+	with open("./"+out_dir+"/"+filename+".json") as handle:
 		as_dict = json.load(handle)
 
 	for i in as_dict['jobs']:
@@ -104,7 +104,6 @@ def main(filename, out_dir):
 				rlat['mean'] * SCALE,
 				rlat['stddev'] * SCALE
 			)
-	print(ret)
 	generate_graphs_from_means(c_scull, rust_scull)
 
 if __name__ == "__main__":
