@@ -58,12 +58,12 @@ def generate_graphs_from_means(scull_latency, rust_latency):
 	plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 	ax[0].set_title('latency for readings')
 	ax[1].set_title('latency for writings')
-	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w)
-	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w)
+	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w, whis=[95, 99])
+	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w, whis=[95,99])
 	for plot in ax:
 		plot.set_ylim(0, max_scull + min_scull)
 		plot.set_ylabel("µsec")
-	plt.savefig(REL_OUT_FILENAME+FORMAT)
+	plt.savefig(REL_OUT_FILENAME+".png")
 
 def main(filename, out_dir):
 	ret = 0
@@ -71,7 +71,7 @@ def main(filename, out_dir):
 	c_scull = DataPoints()
 	as_dict = {}
 
-	with open("./"+out_dir+"/"+filename) as handle:
+	with open("./"+out_dir+"/"+filename+".json") as handle:
 		as_dict = json.load(handle)
 
 	for i in as_dict['jobs']:
@@ -104,7 +104,6 @@ def main(filename, out_dir):
 				rlat['mean'] * SCALE,
 				rlat['stddev'] * SCALE
 			)
-	print(ret)
 	generate_graphs_from_means(c_scull, rust_scull)
 
 if __name__ == "__main__":
