@@ -56,13 +56,12 @@ def generate_graphs_from_means(scull_latency, rust_latency):
 	plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 	ax[0].set_title('latency for readings')
 	ax[1].set_title('latency for writings')
-	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w)
-	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w)
+	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w, whis=1.5)
+	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w, whis=1.5)
 	for plot in ax:
 		plot.set_ylim(0, max_scull + min_scull)
 		plot.set_ylabel("µsec")
-	stamp = time.strftime("_%Y%m%d_%H%M%S")
-	plt.savefig(REL_OUT_FILENAME+stamp+FORMAT)
+	plt.savefig(REL_OUT_FILENAME+FORMAT)
 
 def main(filepath):
 	ret = 0
@@ -78,7 +77,6 @@ def main(filepath):
 		rlat = i['read']['lat_ns']
 		ret += 1
 		if i['job options'] and i['job options']['filename'] == "/dev/scull":
-			print("C mean write:    ", wlat['mean'])
 			c_scull.add_write(
 				wlat['min'] * SCALE,
 				wlat['max'] * SCALE,
@@ -92,7 +90,6 @@ def main(filepath):
 				rlat['stddev'] * SCALE
 			)
 		else:
-			print("Rust mean write: ", wlat['mean'])
 			rust_scull.add_write(
 				wlat['min'] * SCALE,
 				wlat['max'] * SCALE,
@@ -105,7 +102,6 @@ def main(filepath):
 				rlat['mean'] * SCALE,
 				rlat['stddev'] * SCALE
 			)
-	print(ret)
 	generate_graphs_from_means(c_scull, rust_scull)
 
 if __name__ == "__main__":
