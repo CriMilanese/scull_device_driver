@@ -20,7 +20,7 @@ module! {
     license: "GPL",
 }
 
-const BLOCK_SIZE : usize = 4096;
+const BLOCK_SIZE : usize = 131072;
 
 struct ScullDevice {
   data:  Mutex<Vec<Vec<u8>>>,

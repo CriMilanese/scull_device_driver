@@ -20,7 +20,7 @@
 #include <linux/uaccess.h>
 
 // BLOCK_SIZE already defined in fs.h (kernel dependent)
-#define _BLOCK_SIZE 4096
+#define _BLOCK_SIZE 131072
 
 MODULE_AUTHOR("Cristiano Milanese");
 MODULE_DESCRIPTION("Simple Character Utility for Loading Localities");
