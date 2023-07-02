@@ -16,7 +16,7 @@ module! {
     type: ScullDeviceModule,
     name: "rust_scull",
     author: "Cristiano Milanese",
-    description: "Rust Simple Character Utility for Loading Localities",
+    description: "Safe Character Utility for Loading Localities",
     license: "GPL",
 }
 
@@ -36,13 +36,14 @@ impl ScullDevice {
       })
     }
 
-    fn size(&self) -> usize {
+    // returns the current maximum amount of bytes readable
+    fn capacity(&self) -> usize {
 				let vec = self.data.lock();
-				let mut counter = 0;
-				for i in vec[..].iter() {
-						counter += i.len();
+				let mut byte_size = 0;
+				for _ in 0..vec.len() {
+						byte_size += BLOCK_SIZE;
 				}
-				counter
+				byte_size
     }
 
     fn find_block(
@@ -53,11 +54,11 @@ impl ScullDevice {
         if row >= vec.len() {
             // add one to compensate for index vs size
             let fill = row.saturating_sub(vec.len()) + 1;
-		        for i in 0..fill {
+		        for _i in 0..fill {
 		            match vec.try_push(Vec::<u8>::new()) {
 		            		Ok(_) => continue,
 		            		Err(_) => {
-		            		  pr_err!("max limit reached at {}", i);
+		            		  pr_err!("out of memory for new row {}\n", vec.len());
 		            		  return Err(ENOMEM)
 		            		}
 		            }
@@ -66,7 +67,10 @@ impl ScullDevice {
         if vec[row].len() != BLOCK_SIZE {
         		match vec[row].try_resize(BLOCK_SIZE, 0) {
         				Ok(..) => Ok(BLOCK_SIZE),
-        				Err(..) => Err(ENOMEM)
+        				Err(..) => {
+	            		  pr_err!("out of memory while allocating {} bytes for block {}\n", BLOCK_SIZE, row);
+        						Err(ENOMEM)
+        				}
         		}
         } else {
         		return Ok(BLOCK_SIZE);
@@ -93,7 +97,10 @@ impl Operations for ScullDevice {
         user_buff: &mut impl IoBufferWriter,
         _offset: u64,
     ) -> Result<usize> {
+        if user_buff.is_empty() { return Ok(0) }
         let total_offset;
+        // this portion is not present in the c code because
+        // there we modify the file pointer directly
         {
         		let curr_pos = this.cursor.lock();
         		let cast : u64 = (*curr_pos).try_into().unwrap();
@@ -122,6 +129,7 @@ impl Operations for ScullDevice {
         user_buff: &mut impl IoBufferReader,
         _offset: u64,
     ) -> Result<usize> {
+        if user_buff.is_empty() { return Ok(0) }
 				let total_offset;
         {
         		let curr_pos = this.cursor.lock();
@@ -130,7 +138,6 @@ impl Operations for ScullDevice {
 		    }
 
         let block_index = total_offset / BLOCK_SIZE as u64;
-        if user_buff.len() == 0 { return Ok(0) }
         let _rest = total_offset % BLOCK_SIZE as u64;
         let row : usize = block_index.try_into()?;
         let offset : usize = _rest.try_into()?;
@@ -159,7 +166,7 @@ impl Operations for ScullDevice {
 							  return Ok(of);
 						}  
 						SeekFrom::End(of) => {
-								let from_begin : usize = this.size();
+								let from_begin : usize = this.capacity();
 								let ret : usize = from_begin.saturating_add_signed(of.try_into()?);	
 								let mut guard = this.cursor.lock();
          				*guard = ret;
@@ -183,8 +190,9 @@ struct ScullDeviceModule {
 
 impl Module for ScullDeviceModule {
     fn init(name: &'static CStr, _module: &'static ThisModule) -> Result<Self> {
-        let dev = Arc::try_new(ScullDevice::try_new()?)?;					
+        let dev = Arc::try_new(ScullDevice::try_new()?)?;
         let reg = miscdev::Registration::<ScullDevice>::new_pinned(fmt!("{name}"), dev)?;
+				pr_debug!("mounting {} in devfs and registering its device driver\n", fmt!("{name}"));
         Ok(ScullDeviceModule {
             _dev: reg,
         })
