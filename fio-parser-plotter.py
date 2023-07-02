@@ -44,6 +44,8 @@ class DataPoints:
 def generate_graphs_from_means(scull_latency, rust_latency):
 	labels=["C", "Rust"]
 	box_w = 0.4
+
+	# calculate ranges correctly
 	c_max_writes = max(scull_latency.writes['means'])
 	c_min_reads = min(scull_latency.reads['means'])
 	rust_max_writes = max(rust_latency.writes['means'])
@@ -56,20 +58,20 @@ def generate_graphs_from_means(scull_latency, rust_latency):
 	plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.4, hspace=0.4)
 	ax[0].set_title('latency for readings')
 	ax[1].set_title('latency for writings')
-	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w, whis=1.5)
-	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w, whis=1.5)
+	ax[0].boxplot([scull_latency.reads['means'], rust_latency.reads['means']], labels=labels, widths=box_w, whis=[95, 99])
+	ax[1].boxplot([scull_latency.writes['means'], rust_latency.writes['means']], labels=labels, widths=box_w, whis=[95, 99])
 	for plot in ax:
 		plot.set_ylim(0, max_scull + min_scull)
 		plot.set_ylabel("µsec")
-	plt.savefig(REL_OUT_FILENAME+FORMAT)
+	plt.savefig(REL_OUT_FILENAME+".png")
 
-def main(filepath):
+def main(filename, out_dir):
 	ret = 0
 	rust_scull = DataPoints()
 	c_scull = DataPoints()
 	as_dict = {}
 
-	with open(filepath) as handle:
+	with open("./"+out_dir+"/"+filename+".json") as handle:
 		as_dict = json.load(handle)
 
 	for i in as_dict['jobs']:
@@ -105,7 +107,8 @@ def main(filepath):
 	generate_graphs_from_means(c_scull, rust_scull)
 
 if __name__ == "__main__":
-	if(sys.argv[1]):
-		main(sys.argv[1])
+  # filename and out_path
+	if(sys.argv[1] and sys.argv[2]):
+		main(sys.argv[1], sys.argv[2])
 	else:
-		print("argument missing (filepath)")
+		print("argument missing (filename, output_directory)")
