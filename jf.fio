@@ -1,7 +1,7 @@
 [global]
 name=c-scull-test
 description="synchronous randrw test on c scull device driver"
-ioengine=sync
+ioengine=psync
 bs=1K
 iodepth=1
 rw=randrw
